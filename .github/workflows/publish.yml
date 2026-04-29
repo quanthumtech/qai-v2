@@ -108,10 +108,10 @@ jobs:
             - Linux/macOS: `curl -fsSL https://raw.githubusercontent.com/quanthumtech/qai-v2/main/install.sh | sh`
             - Windows: `irm 'https://raw.githubusercontent.com/quanthumtech/qai-v2/main/install.ps1' | iex`
           files: |
-            packages/opencode/dist/qaicli-linux-x64
-            packages/opencode/dist/qaicli-linux-x64-musl
-            packages/opencode/dist/qaicli-macos-x64
-            packages/opencode/dist/qaicli-macos-arm64
-            packages/opencode/dist/qaicli-windows-x64.exe
+            packages/opencode/dist/qaicli-linux-x64/bin/qaicli
+            packages/opencode/dist/qaicli-linux-x64-musl/bin/qaicli
+            packages/opencode/dist/qaicli-macos-x64/bin/qaicli
+            packages/opencode/dist/qaicli-macos-arm64/bin/qaicli
+            packages/opencode/dist/qaicli-windows-x64/bin/qaicli.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
