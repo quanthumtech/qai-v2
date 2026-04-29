@@ -31,8 +31,8 @@ jobs:
 
       - uses: ./.github/actions/setup-bun
 
-      - name: Install opencode
-        run: curl -fsSL https://opencode.ai/install | bash
+      - name: Install qaicli
+        run: curl -fsSL https://raw.githubusercontent.com/quanthumtech/qai-v2/main/install.sh | bash
 
       - name: Get PR details
         id: pr-details
