@@ -59,6 +59,7 @@ console.log(`Loaded ${migrations.length} migrations`)
 const singleFlag = process.argv.includes("--single")
 const baselineFlag = process.argv.includes("--baseline")
 const skipInstall = process.argv.includes("--skip-install")
+const skipArm64 = process.argv.includes("--skip-arm64") || process.env.CI === "true"
 
 const allTargets: {
   os: string
@@ -119,8 +120,10 @@ const allTargets: {
   },
 ]
 
+const filteredTargets = skipArm64 ? allTargets.filter((item) => item.arch !== "arm64") : allTargets
+
 const targets = singleFlag
-  ? allTargets.filter((item) => {
+  ? filteredTargets.filter((item) => {
       if (item.os !== process.platform || item.arch !== process.arch) {
         return false
       }
