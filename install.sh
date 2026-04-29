@@ -2,6 +2,7 @@
 set -e
 
 REPO="quanthumtech/qai-v2"
+BRANCH="master"
 BIN_DIR="${QAI_INSTALL:-/usr/local/bin}"
 
 # Detect OS and arch
@@ -21,6 +22,11 @@ esac
 
 # Get latest release tag
 TAG=$(curl -fsSL "https://api.github.com/repos/$REPO/releases/latest" | grep '"tag_name"' | sed 's/.*"tag_name": *"\(.*\)".*/\1/')
+
+# Fallback to latest commit if no release
+if [ -z "$TAG" ]; then
+  TAG=$(curl -fsSL "https://api.github.com/repos/$REPO/commits/$BRANCH" | grep '"sha"' | head -1 | sed 's/.*"sha": *"\([a-f0-9]*\)".*/\1/')
+fi
 
 URL="https://github.com/$REPO/releases/download/$TAG/qaicli-$PLATFORM"
 
