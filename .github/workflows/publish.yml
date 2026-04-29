@@ -38,17 +38,13 @@ jobs:
 
       - uses: ./.github/actions/setup-bun
 
-      - name: Install QAI
-        if: inputs.bump || inputs.version
-        run: bun i -g qaicli
-
       - id: version
         run: |
-          ./script/version.ts
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENCODE_BUMP: ${{ inputs.bump }}
-          OPENCODE_VERSION: ${{ inputs.version }}
+          # Generate version outputs
+          VERSION="0.0.0-preview-$(date +%Y%m%d%H%M%S)"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+          echo "release=" >> $GITHUB_OUTPUT
     outputs:
       version: ${{ steps.version.outputs.version }}
       release: ${{ steps.version.outputs.release }}
@@ -109,9 +105,5 @@ jobs:
             - Windows: `irm 'https://raw.githubusercontent.com/quanthumtech/qai-v2/main/install.ps1' | iex`
           files: |
             packages/opencode/dist/qaicli-linux-x64/bin/qaicli
-            packages/opencode/dist/qaicli-linux-x64-musl/bin/qaicli
-            packages/opencode/dist/qaicli-macos-x64/bin/qaicli
-            packages/opencode/dist/qaicli-macos-arm64/bin/qaicli
-            packages/opencode/dist/qaicli-windows-x64/bin/qaicli.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
