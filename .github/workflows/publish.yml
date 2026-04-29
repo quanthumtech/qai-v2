@@ -92,8 +92,11 @@ jobs:
           name: qaicli
           path: packages/opencode/dist
 
+      - name: List artifacts
+        run: ls -la packages/opencode/dist/
+
       - name: Upload Release Asset
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.version.outputs.tag }}
           name: QAI CLI ${{ needs.version.outputs.version }}
@@ -101,9 +104,9 @@ jobs:
             ## QAI CLI v${{ needs.version.outputs.version }}
 
             Install:
-            - Linux/macOS: `curl -fsSL https://raw.githubusercontent.com/quanthumtech/qai-v2/main/install.sh | sh`
-            - Windows: `irm 'https://raw.githubusercontent.com/quanthumtech/qai-v2/main/install.ps1' | iex`
+            - Linux/macOS: `curl -fsSL https://raw.githubusercontent.com/quanthumtech/qai-v2/master/install.sh | sh`
+            - Windows: `irm 'https://raw.githubusercontent.com/quanthumtech/qai-v2/master/install.ps1' | iex`
           files: |
-            packages/opencode/dist/qaicli-linux-x64/bin/qaicli=qaicli-linux-x64
+            packages/opencode/dist/qaicli-linux-x64/bin/qaicli
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
