@@ -58,7 +58,7 @@ export namespace Installation {
   }
 
   export async function method() {
-    if (process.execPath.includes(path.join(".opencode", "bin"))) return "curl"
+    if (process.execPath.includes(path.join(".qaicli", "bin"))) return "curl"
     if (process.execPath.includes(path.join(".local", "bin"))) return "curl"
     const exec = process.execPath.toLowerCase()
 
@@ -132,19 +132,19 @@ export namespace Installation {
     let cmd
     switch (method) {
       case "curl":
-        cmd = $`curl -fsSL https://opencode.ai/install | bash`.env({
+        cmd = $`curl -fsSL https://raw.githubusercontent.com/quanthumtech/qai-v2/main/install.sh | bash`.env({
           ...process.env,
           VERSION: target,
         })
         break
       case "npm":
-        cmd = $`npm install -g opencode-ai@${target}`
+        cmd = $`npm install -g qaicli@${target}`
         break
       case "pnpm":
-        cmd = $`pnpm install -g opencode-ai@${target}`
+        cmd = $`pnpm install -g qaicli@${target}`
         break
       case "bun":
-        cmd = $`bun install -g opencode-ai@${target}`
+        cmd = $`bun install -g qaicli@${target}`
         break
       case "brew": {
         const formula = await getBrewFormula()
@@ -165,10 +165,10 @@ export namespace Installation {
         break
       }
       case "choco":
-        cmd = $`echo Y | choco upgrade opencode --version=${target}`
+        cmd = $`echo Y | choco upgrade qaicli --version=${target}`
         break
       case "scoop":
-        cmd = $`scoop install opencode@${target}`
+        cmd = $`scoop install qaicli@${target}`
         break
       default:
         throw new Error(`Unknown method: ${method}`)
