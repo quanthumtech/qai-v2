@@ -26,6 +26,7 @@ import osakaJade from "./theme/osaka-jade.json" with { type: "json" }
 import onedark from "./theme/one-dark.json" with { type: "json" }
 import opencode from "./theme/opencode.json" with { type: "json" }
 import orng from "./theme/orng.json" with { type: "json" }
+import qai from "./theme/qai.json" with { type: "json" }
 import lucentOrng from "./theme/lucent-orng.json" with { type: "json" }
 import palenight from "./theme/palenight.json" with { type: "json" }
 import rosepine from "./theme/rosepine.json" with { type: "json" }
@@ -164,6 +165,7 @@ export const DEFAULT_THEMES: Record<string, ThemeJson> = {
   orng,
   ["lucent-orng"]: lucentOrng,
   palenight,
+  qai,
   rosepine,
   solarized,
   synthwave84,
@@ -285,7 +287,7 @@ export const { use: useTheme, provider: ThemeProvider } = createSimpleContext({
     const [store, setStore] = createStore({
       themes: DEFAULT_THEMES,
       mode: kv.get("theme_mode", props.mode),
-      active: (config.theme ?? kv.get("theme", "opencode")) as string,
+      active: (config.theme ?? kv.get("theme", "qai")) as string,
       ready: false,
     })
 

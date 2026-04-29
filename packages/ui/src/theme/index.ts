@@ -33,6 +33,7 @@ export {
   DEFAULT_THEMES,
   oc1Theme,
   oc2Theme,
+  qaiTheme,
   tokyonightTheme,
   draculaTheme,
   monokaiTheme,
