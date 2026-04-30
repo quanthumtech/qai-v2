@@ -50,7 +50,7 @@ jobs:
       release: ${{ steps.version.outputs.release }}
       tag: ${{ steps.version.outputs.tag }}
 
-  build-cli:
+  build-cli-linux:
     needs: version
     runs-on: ubuntu-latest
     if: github.repository == 'quanthumtech/qai-v2'
@@ -61,7 +61,7 @@ jobs:
 
       - uses: ./.github/actions/setup-bun
 
-      - name: Build
+      - name: Build Linux
         id: build
         run: |
           ./packages/opencode/script/build.ts --single --skip-arm64
@@ -71,7 +71,34 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: qaicli-binaries
+          name: qaicli-linux
+          path: packages/opencode/dist
+          retention-days: 1
+
+    outputs:
+      version: ${{ needs.version.outputs.version }}
+
+  build-cli-windows:
+    needs: version
+    runs-on: windows-latest
+    if: github.repository == 'quanthumtech/qai-v2'
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-tags: true
+
+      - uses: ./.github/actions/setup-bun
+
+      - name: Build Windows
+        run: |
+          ./packages/opencode/script/build.ts --single
+        env:
+          OPENCODE_VERSION: ${{ needs.version.outputs.version }}
+          OPENCODE_RELEASE: ${{ needs.version.outputs.release }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qaicli-windows
           path: packages/opencode/dist
           retention-days: 1
 
@@ -81,7 +108,8 @@ jobs:
   publish:
     needs:
       - version
-      - build-cli
+      - build-cli-linux
+      - build-cli-windows
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -90,9 +118,13 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: qaicli-binaries
-          path: packages/opencode/dist
-          merge-multiple: true
+          name: qaicli-linux
+          path: packages/opencode/dist/linux
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: qaicli-windows
+          path: packages/opencode/dist/windows
 
       - name: List artifacts
         run: ls -la packages/opencode/dist/
@@ -109,6 +141,7 @@ jobs:
             - Linux/macOS: `curl -fsSL https://raw.githubusercontent.com/quanthumtech/qai-v2/master/install.sh | sh`
             - Windows: `irm 'https://raw.githubusercontent.com/quanthumtech/qai-v2/master/install.ps1' | iex`
           files: |
-            packages/opencode/dist/qaicli-linux-x64/bin/qaicli
+            packages/opencode/dist/linux/qaicli-linux-x64/bin/qaicli=qaicli-linux-x64
+            packages/opencode/dist/windows/qaicli-windows-x64/bin/qaicli.exe=qaicli-windows-x64.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
