@@ -26,14 +26,25 @@ if (!(Test-Path $BIN_DIR)) {
     Write-Host "Using temp directory: $BIN_DIR"
 }
 
-# Download with timeout for large file
+# Try direct download first
 $TempFile = "$env:TEMP\qaicli.exe"
 try {
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     $webClient = New-Object System.Net.WebClient
     $webClient.DownloadFile($URL, $TempFile)
 } catch {
-    # Fallback to Invoke-WebRequest with timeout
+    # Fallback: Try npm install
+    Write-Host "Direct download failed, trying npm..."
+    $npmPath = (Get-Command npm -ErrorAction SilentlyContinue).Source
+    if ($npmPath) {
+        & npm install -g qaicli
+        $qaicliPath = (Get-Command qaicli -ErrorAction SilentlyContinue).Source
+        if ($qaicliPath) {
+            Write-Host "✓ Installed via npm"
+            return
+        }
+    }
+    # Last resort: Fallback to Invoke-WebRequest with timeout
     $TimeoutSec = 300
     Invoke-WebRequest -Uri $URL -OutFile $TempFile -UseBasicParsing -TimeoutSec $TimeoutSec
 }

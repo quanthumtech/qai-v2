@@ -78,33 +78,6 @@ jobs:
     outputs:
       version: ${{ needs.version.outputs.version }}
 
-  build-cli-windows:
-    needs: version
-    runs-on: windows-latest
-    if: github.repository == 'quanthumtech/qai-v2'
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-tags: true
-
-      - uses: ./.github/actions/setup-bun
-
-      - name: Build Windows
-        run: |
-          ./packages/opencode/script/build.ts --single
-        env:
-          OPENCODE_VERSION: ${{ needs.version.outputs.version }}
-          OPENCODE_RELEASE: ${{ needs.version.outputs.release }}
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: qaicli-windows
-          path: packages/opencode/dist
-          retention-days: 1
-
-    outputs:
-      version: ${{ needs.version.outputs.version }}
-
   publish:
     needs:
       - version
@@ -134,7 +107,16 @@ jobs:
             Install:
             - Linux/macOS: `curl -fsSL https://raw.githubusercontent.com/quanthumtech/qai-v2/master/install.sh | sh`
             - Windows: `irm 'https://raw.githubusercontent.com/quanthumtech/qai-v2/master/install.ps1' | iex`
+            - npm: `npm install -g qaicli`
           files: |
             packages/opencode/dist/qaicli-linux-x64/bin/qaicli=qaicli-linux-x64
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to npm
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+          npm publish --access public
+        working-directory: packages/opencode
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
