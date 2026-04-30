@@ -94,7 +94,9 @@ jobs:
           path: packages/opencode/dist
 
       - name: List artifacts
-        run: ls -la packages/opencode/dist/
+        run: |
+          ls -la packages/opencode/dist/
+          ls -la packages/opencode/dist/qaicli-linux-x64/bin/ 2>/dev/null || echo "bin not found"
 
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v2
