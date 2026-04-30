@@ -109,7 +109,6 @@ jobs:
     needs:
       - version
       - build-cli-linux
-      - build-cli-windows
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -119,12 +118,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: qaicli-linux
-          path: packages/opencode/dist/linux
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: qaicli-windows
-          path: packages/opencode/dist/windows
+          path: packages/opencode/dist
 
       - name: List artifacts
         run: ls -la packages/opencode/dist/
@@ -141,7 +135,6 @@ jobs:
             - Linux/macOS: `curl -fsSL https://raw.githubusercontent.com/quanthumtech/qai-v2/master/install.sh | sh`
             - Windows: `irm 'https://raw.githubusercontent.com/quanthumtech/qai-v2/master/install.ps1' | iex`
           files: |
-            packages/opencode/dist/linux/qaicli-linux-x64/bin/qaicli=qaicli-linux-x64
-            packages/opencode/dist/windows/qaicli-windows-x64/bin/qaicli.exe=qaicli-windows-x64.exe
+            packages/opencode/dist/qaicli-linux-x64/bin/qaicli=qaicli-linux-x64
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
