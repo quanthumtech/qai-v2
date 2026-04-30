@@ -116,8 +116,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish to npm
-        uses: JS-DevTools/npm-publish@v1
-        with:
-          package: packages/opencode
-          access: public
-          token: ${{ secrets.NPM_TOKEN }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > packages/opencode/.npmrc
+          cd packages/opencode
+          npm publish --access public
