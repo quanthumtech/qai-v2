@@ -10,13 +10,21 @@ $PLATFORM = "windows-$ARCH"
 # Get latest release tag
 $TAG = (Invoke-RestMethod "https://api.github.com/repos/$REPO/releases/latest").tag_name
 
-$URL = "https://github.com/$REPO/releases/download/$TAG/qaicli-$PLATFORM.exe"
+$URL = "https://github.com/$REPO/releases/download/$TAG/qaicli"
 
 Write-Host "Installing qaicli $TAG..."
 
-# Download
+# Download with timeout for large file
 $TempFile = "$env:TEMP\qaicli.exe"
-Invoke-WebRequest -Uri $URL -OutFile $TempFile -UseBasicParsing
+try {
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    $webClient = New-Object System.Net.WebClient
+    $webClient.DownloadFile($URL, $TempFile)
+} catch {
+    # Fallback to Invoke-WebRequest with timeout
+    $TimeoutSec = 300
+    Invoke-WebRequest -Uri $URL -OutFile $TempFile -UseBasicParsing -TimeoutSec $TimeoutSec
+}
 
 # Create directory if needed
 if (!(Test-Path $BIN_DIR)) {
