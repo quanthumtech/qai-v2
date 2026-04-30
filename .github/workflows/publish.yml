@@ -78,10 +78,89 @@ jobs:
     outputs:
       version: ${{ needs.version.outputs.version }}
 
+  build-desktop-linux:
+    needs: version
+    runs-on: ubuntu-latest
+    if: github.repository == 'quanthumtech/qai-v2'
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-tags: true
+
+      - uses: ./.github/actions/setup-bun
+
+      - name: Build CLI
+        run: |
+          ./packages/opencode/script/build.ts --single --skip-arm64
+        env:
+          OPENCODE_VERSION: ${{ needs.version.outputs.version }}
+          OPENCODE_RELEASE: ${{ needs.version.outputs.release }}
+
+      - name: Copy CLI to sidecar
+        run: |
+          mkdir -p packages/desktop/src-tauri/sidecars
+          cp packages/opencode/dist/qaicli-linux-x64/bin/qaicli packages/desktop/src-tauri/sidecars/opencode-cli-x86_64-unknown-linux-gnu
+          chmod +x packages/desktop/src-tauri/sidecars/opencode-cli-x86_64-unknown-linux-gnu
+
+      - name: Setup Rust
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+
+      - name: Build Desktop
+        run: |
+          source "$HOME/.cargo/env"
+          cd packages/desktop
+          bun run tauri build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qaicli-desktop-linux
+          path: packages/desktop/src-tauri/target/release/bundle
+          retention-days: 1
+
+  build-desktop-windows:
+    needs: version
+    runs-on: windows-latest
+    if: github.repository == 'quanthumtech/qai-v2'
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-tags: true
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Build CLI
+        run: |
+          .\packages\opencode\script\build.ts --single
+        env:
+          OPENCODE_VERSION: ${{ needs.version.outputs.version }}
+          OPENCODE_RELEASE: ${{ needs.version.outputs.release }}
+
+      - name: Copy CLI to sidecar
+        run: |
+          mkdir packages\desktop\src-tauri\sidecars
+          copy packages\opencode\dist\qaicli-windows-x64\bin\qaicli packages\desktop\src-tauri\sidecars\opencode-cli-x86_64-pc-windows-msvc.exe
+
+      - name: Build Desktop
+        run: |
+          cd packages\desktop
+          bun run tauri build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qaicli-desktop-windows
+          path: packages/desktop/src-tauri/target/release/bundle
+          retention-days: 1
+
   publish:
     needs:
       - version
       - build-cli-linux
+      - build-desktop-linux
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -92,6 +171,11 @@ jobs:
         with:
           name: qaicli-linux
           path: packages/opencode/dist
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: qaicli-desktop-linux
+          path: packages/desktop/dist
 
       - name: List artifacts
         run: |
@@ -112,6 +196,8 @@ jobs:
             - npm: `npm install -g qaicli`
           files: |
             packages/opencode/dist/qaicli-linux-x64/bin/qaicli
+            packages/desktop/dist/deb/qaicli_*.deb
+            packages/desktop/dist/rpm/qaicli-*.rpm
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
