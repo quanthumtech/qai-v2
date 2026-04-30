@@ -71,8 +71,9 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: qaicli
+          name: qaicli-binaries
           path: packages/opencode/dist
+          retention-days: 1
 
     outputs:
       version: ${{ needs.version.outputs.version }}
@@ -89,8 +90,9 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: qaicli
+          name: qaicli-binaries
           path: packages/opencode/dist
+          merge-multiple: true
 
       - name: List artifacts
         run: ls -la packages/opencode/dist/
