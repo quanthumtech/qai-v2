@@ -117,8 +117,6 @@ jobs:
 
       - name: Publish to npm
         run: |
+          cd packages/opencode
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
           npm publish --access public
-        working-directory: packages/opencode
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
