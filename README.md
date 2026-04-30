@@ -21,13 +21,13 @@
 **Linux / macOS**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/quanthumtech/qai-v2/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/quanthumtech/qai-v2/master/install.sh | sh
 ```
 
 **Windows (PowerShell)**
 
 ```powershell
-irm 'https://raw.githubusercontent.com/quanthumtech/qai-v2/main/install.ps1' | iex
+irm 'https://raw.githubusercontent.com/quanthumtech/qai-v2/master/install.ps1' | iex
 ```
 
 Após a instalação, rode:

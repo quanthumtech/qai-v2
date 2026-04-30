@@ -28,7 +28,7 @@ if [ -z "$TAG" ]; then
   TAG=$(curl -fsSL "https://api.github.com/repos/$REPO/commits/$BRANCH" | grep '"sha"' | head -1 | sed 's/.*"sha": *"\([a-f0-9]*\)".*/\1/')
 fi
 
-URL="https://github.com/$REPO/releases/download/$TAG/qaicli-$PLATFORM"
+URL="https://github.com/$REPO/releases/download/$TAG/qaicli"
 
 echo "Installing qaicli $TAG..."
 curl -fsSL "$URL" -o /tmp/qaicli
