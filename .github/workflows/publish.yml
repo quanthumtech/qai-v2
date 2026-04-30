@@ -111,7 +111,7 @@ jobs:
             - Windows: `irm 'https://raw.githubusercontent.com/quanthumtech/qai-v2/master/install.ps1' | iex`
             - npm: `npm install -g qaicli`
           files: |
-            packages/opencode/dist/qaicli-linux-x64/bin/qaicli=qaicli-linux-x64
+            packages/opencode/dist/qaicli-linux-x64/bin/qaicli
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
