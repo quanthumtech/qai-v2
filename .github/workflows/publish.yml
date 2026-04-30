@@ -78,10 +78,60 @@ jobs:
     outputs:
       version: ${{ needs.version.outputs.version }}
 
+  build-cli-macos:
+    needs: version
+    runs-on: macos-latest
+    if: github.repository == 'quanthumtech/qai-v2'
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-tags: true
+
+      - uses: ./.github/actions/setup-bun
+
+      - name: Build macOS
+        run: |
+          ./packages/opencode/script/build.ts --single
+        env:
+          OPENCODE_VERSION: ${{ needs.version.outputs.version }}
+          OPENCODE_RELEASE: ${{ needs.version.outputs.release }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qaicli-macos
+          path: packages/opencode/dist
+          retention-days: 1
+
+  build-cli-windows:
+    needs: version
+    runs-on: windows-latest
+    if: github.repository == 'quanthumtech/qai-v2'
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-tags: true
+
+      - uses: ./.github/actions/setup-bun
+
+      - name: Build Windows
+        run: |
+          .\packages\opencode\script\build.ts --single
+        env:
+          OPENCODE_VERSION: ${{ needs.version.outputs.version }}
+          OPENCODE_RELEASE: ${{ needs.version.outputs.release }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: qaicli-windows
+          path: packages/opencode/dist
+          retention-days: 1
+
   publish:
     needs:
       - version
       - build-cli-linux
+      - build-cli-macos
+      - build-cli-windows
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -93,12 +143,31 @@ jobs:
           name: qaicli-linux
           path: packages/opencode/dist
 
+      - uses: actions/download-artifact@v4
+        with:
+          name: qaicli-macos
+          path: packages/opencode/dist-macos
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: qaicli-windows
+          path: packages/opencode/dist-windows
+
       - name: List artifacts
         run: |
           ls -la packages/opencode/dist/
           ls -la packages/opencode/dist/qaicli-linux-x64/bin/ 2>/dev/null || echo "bin not found"
+          ls -la packages/opencode/dist-macos/
+          ls -la packages/opencode/dist-windows/
 
-      - name: Upload Release Asset
+      - name: Prepare release files
+        run: |
+          # Copy macOS files to dist
+          cp -r packages/opencode/dist-macos/* packages/opencode/dist/ 2>/dev/null || true
+          # Copy Windows files to dist
+          cp -r packages/opencode/dist-windows/* packages/opencode/dist/ 2>/dev/null || true
+
+      - name: Upload Release Assets
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ needs.version.outputs.tag }}
@@ -112,11 +181,16 @@ jobs:
             - npm: `npm install -g qaicli`
           files: |
             packages/opencode/dist/qaicli-linux-x64/bin/qaicli
+            packages/opencode/dist/qaicli-darwin-x64/bin/qaicli
+            packages/opencode/dist/qaicli-darwin-arm64/bin/qaicli
+            packages/opencode/dist/qaicli-windows-x64/bin/qaicli.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish to npm
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > packages/opencode/.npmrc
-          cd packages/opencode
-          npm publish --access public
+      # npm publish disabled - not working properly
+      # To enable: uncomment the following steps
+      # - name: Publish to npm
+      #   run: |
+      #     echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > packages/opencode/.npmrc
+      #     cd packages/opencode
+      #     npm publish --access public
