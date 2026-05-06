@@ -182,7 +182,7 @@ for (const item of targets) {
       autoloadTsconfig: true,
       autoloadPackageJson: true,
       target: name.replace(pkg.name, "bun") as any,
-      outfile: `dist/${name}/bin/qaicli`,
+      outfile: `dist/${name}/bin/qaicli${item.os === "win32" ? ".exe" : ""}`,
       execArgv: [`--user-agent=qaicli/${Script.version}`, "--use-system-ca", "--"],
       windows: {},
     },

@@ -64,7 +64,7 @@ jobs:
       - name: Build Linux
         id: build
         run: |
-          ./packages/opencode/script/build.ts --single --skip-arm64
+          bun run packages/opencode/script/build.ts --single --skip-arm64
         env:
           OPENCODE_VERSION: ${{ needs.version.outputs.version }}
           OPENCODE_RELEASE: ${{ needs.version.outputs.release }}
@@ -99,7 +99,7 @@ jobs:
           Write-Host "OS: $env:OS"
           Write-Host "Working directory: $(Get-Location)"
           $ErrorActionPreference = "Continue"
-          .\packages\opencode\script\build.ts --single 2>&1 | Tee-Object -FilePath build_output.txt
+          bun run packages/opencode/script/build.ts --single 2>&1 | Tee-Object -FilePath build_output.txt
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Build failed with exit code: $LASTEXITCODE"
             if (Test-Path build_output.txt) { Get-Content build_output.txt }
@@ -124,7 +124,7 @@ jobs:
       - name: Copy CLI to sidecar
         run: |
           mkdir packages\desktop\src-tauri\sidecars
-          copy packages\opencode\dist\qaicli-windows-x64\bin\qaicli packages\desktop\src-tauri\sidecars\opencode-cli-x86_64-pc-windows-msvc.exe
+          copy packages\opencode\dist\qaicli-windows-x64\bin\qaicli.exe packages\desktop\src-tauri\sidecars\opencode-cli-x86_64-pc-windows-msvc.exe
 
       - name: Build Desktop
         run: |
