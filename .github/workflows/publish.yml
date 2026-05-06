@@ -78,46 +78,6 @@ jobs:
     outputs:
       version: ${{ needs.version.outputs.version }}
 
-  build-desktop-linux:
-    needs: version
-    runs-on: ubuntu-latest
-    if: github.repository == 'quanthumtech/qai-v2'
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-tags: true
-
-      - uses: ./.github/actions/setup-bun
-
-      - name: Build CLI
-        run: |
-          ./packages/opencode/script/build.ts --single --skip-arm64
-        env:
-          OPENCODE_VERSION: ${{ needs.version.outputs.version }}
-          OPENCODE_RELEASE: ${{ needs.version.outputs.release }}
-
-      - name: Copy CLI to sidecar
-        run: |
-          mkdir -p packages/desktop/src-tauri/sidecars
-          cp packages/opencode/dist/qaicli-linux-x64/bin/qaicli packages/desktop/src-tauri/sidecars/opencode-cli-x86_64-unknown-linux-gnu
-          chmod +x packages/desktop/src-tauri/sidecars/opencode-cli-x86_64-unknown-linux-gnu
-
-      - name: Setup Rust
-        run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-
-      - name: Build Desktop
-        run: |
-          source "$HOME/.cargo/env"
-          cd packages/desktop
-          bun run tauri build
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: qaicli-desktop-linux
-          path: packages/desktop/src-tauri/target/release/bundle
-          retention-days: 1
-
   build-desktop-windows:
     needs: version
     runs-on: windows-latest
@@ -135,10 +95,20 @@ jobs:
 
       - name: Build CLI
         run: |
+          Write-Host "Platform: $env:PROCESSOR_ARCHITECTURE"
+          Write-Host "OS: $env:OS"
           .\packages\opencode\script\build.ts --single
         env:
           OPENCODE_VERSION: ${{ needs.version.outputs.version }}
           OPENCODE_RELEASE: ${{ needs.version.outputs.release }}
+
+      - name: Debug - List dist contents
+        run: |
+          if (Test-Path packages\opencode\dist) {
+            Get-ChildItem -Path packages\opencode\dist -Recurse | Select-Object FullName
+          } else {
+            Write-Host "dist directory not found"
+          }
 
       - name: Copy CLI to sidecar
         run: |
@@ -160,7 +130,7 @@ jobs:
     needs:
       - version
       - build-cli-linux
-      - build-desktop-linux
+      - build-desktop-windows
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -174,7 +144,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: qaicli-desktop-linux
+          name: qaicli-desktop-windows
           path: packages/desktop/dist
 
       - name: List artifacts
@@ -196,8 +166,7 @@ jobs:
             - npm: `npm install -g qaicli`
           files: |
             packages/opencode/dist/qaicli-linux-x64/bin/qaicli
-            packages/desktop/dist/deb/qaicli_*.deb
-            packages/desktop/dist/rpm/qaicli-*.rpm
+            packages/desktop/dist/nsis/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
