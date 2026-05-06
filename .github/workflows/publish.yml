@@ -97,14 +97,25 @@ jobs:
         run: |
           Write-Host "Platform: $env:PROCESSOR_ARCHITECTURE"
           Write-Host "OS: $env:OS"
-          .\packages\opencode\script\build.ts --single
+          Write-Host "Working directory: $(Get-Location)"
+          $ErrorActionPreference = "Continue"
+          .\packages\opencode\script\build.ts --single 2>&1 | Tee-Object -FilePath build_output.txt
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Build failed with exit code: $LASTEXITCODE"
+            if (Test-Path build_output.txt) { Get-Content build_output.txt }
+          }
         env:
           OPENCODE_VERSION: ${{ needs.version.outputs.version }}
           OPENCODE_RELEASE: ${{ needs.version.outputs.release }}
 
       - name: Debug - List dist contents
         run: |
+          if (Test-Path build_output.txt) {
+            Write-Host "=== Build Output ==="
+            Get-Content build_output.txt
+          }
           if (Test-Path packages\opencode\dist) {
+            Write-Host "=== dist contents ==="
             Get-ChildItem -Path packages\opencode\dist -Recurse | Select-Object FullName
           } else {
             Write-Host "dist directory not found"
