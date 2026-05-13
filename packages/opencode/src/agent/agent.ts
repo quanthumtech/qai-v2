@@ -11,6 +11,7 @@ import { ProviderTransform } from "../provider/transform"
 import PROMPT_GENERATE from "./generate.txt"
 import PROMPT_COMPACTION from "./prompt/compaction.txt"
 import PROMPT_EXPLORE from "./prompt/explore.txt"
+import PROMPT_DOC from "./prompt/doc.txt"
 import PROMPT_SUMMARY from "./prompt/summary.txt"
 import PROMPT_TITLE from "./prompt/title.txt"
 import { PermissionNext } from "@/permission/next"
@@ -125,6 +126,21 @@ export namespace Agent {
         ),
         options: {},
         mode: "subagent",
+        native: true,
+      },
+      docs: {
+        name: "docs",
+        description: "Document agent. Analyzes and generates documents (docx, pdf, excel, png) using pandoc and python.",
+        prompt: PROMPT_DOC,
+        permission: PermissionNext.merge(
+          defaults,
+          PermissionNext.fromConfig({
+            question: "allow",
+          }),
+          user,
+        ),
+        options: {},
+        mode: "primary",
         native: true,
       },
       explore: {
