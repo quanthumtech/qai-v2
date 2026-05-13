@@ -69,7 +69,7 @@ export default function Home() {
   }
 
   return (
-    <div class="mx-auto mt-8 w-full md:w-auto px-4">
+    <div class="mx-auto mt-8 w-full md:w-auto px-4 flex flex-col items-center">
       <Logo class="md:w-xl opacity-35" />
       <Button
         size="large"
