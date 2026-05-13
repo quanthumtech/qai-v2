@@ -2,3 +2,8 @@
   width: 16px;
   aspect-ratio: 4/5;
 }
+
+[data-component="logo-splash"] {
+  max-width: 350px;
+  width: 100%;
+}

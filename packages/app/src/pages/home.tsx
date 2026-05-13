@@ -69,8 +69,8 @@ export default function Home() {
   }
 
   return (
-    <div class="mx-auto mt-55 w-full md:w-auto px-4">
-      <Logo class="md:w-xl opacity-12" />
+    <div class="mx-auto mt-8 w-full md:w-auto px-4">
+      <Logo class="md:w-xl opacity-35" />
       <Button
         size="large"
         variant="ghost"
@@ -114,7 +114,7 @@ export default function Home() {
           </div>
         </Match>
         <Match when={true}>
-          <div class="mt-30 mx-auto flex flex-col items-center gap-3">
+          <div class="mt-12 mx-auto flex flex-col items-center gap-3">
             <Icon name="folder-add-left" size="large" />
             <div class="flex flex-col gap-1 items-center justify-center">
               <div class="text-14-medium text-text-strong">{language.t("home.empty.title")}</div>
